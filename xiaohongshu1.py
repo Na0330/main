@@ -35,9 +35,9 @@ from sklearn.feature_extraction.text import CountVectorizer
 # In[10]:
 
 
-# 读取 csv文件
+# Reading csv file
 xhs_df = pd.read_csv('D:\\布里斯托大学\\TB2\\EFIMM0139 - Social Media and Web Analytics\\Assessment\\data\\time.csv')
-# 将数据保存为JSON文件
+# Save the data as a JSON file
 xhs_df.to_json('data.json', orient='records')
 print(xhs_df.head())
 
@@ -144,19 +144,19 @@ print(tag_texts)
 # In[67]:
 
 
-# 创建一个空字典来存储每个带引号中文本的出现次数
+# Create an empty dictionary to store the number of occurrences of each quoted text
 quoted_text_counts = {}
 
-# 遍历 DataFrame 中的每个 tag_list 值
+# Iterate over each tag_list value in the DataFrame
 for tags in df['tag_list']:
-    # 使用正则表达式匹配带引号中的文本
+    # Use regular expressions to match text in quotes
     quoted_texts = re.findall(r"'(.*?)'", tags)
-    # 遍历匹配到的带引号中文本
+    # Traverse the matched text with quotation marks
     for text in quoted_texts:
-        # 统计每个带引号中文本出现的次数
+        # Count the number of occurrences of each quotation mark
         quoted_text_counts[text] = quoted_text_counts.get(text, 0) + 1
 
-# 输出结果
+# Output result
 for text, count in quoted_text_counts.items():
     print(f"'{text}' ： {count} ")
 
