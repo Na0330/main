@@ -39,7 +39,7 @@ df.head()
 lab_to_sentiment = {0.0:"Negative", 1.0:"Neutral", 2.0:"Positive"}
 def label_decoder(label):
   return lab_to_sentiment[label]
-# 将NaN值替换为默认值（例如中性）
+# Replace the NaN value with the default value (such as neutral)
 df['sentiment'] = df['sentiment'].fillna(1.0)
 df.sentiment = df.sentiment.apply(lambda x: label_decoder(x))
 df.head()
@@ -75,7 +75,7 @@ negative_rows
 
 # In[8]:
 
-
+# Select the top 5 ip locations and count them
 negative_ip_location = negative_rows.groupby(by=['note_ip_location']).size().reset_index(name='count').sort_values(by='count', ascending=False).head(5)
 negative_ip_location
 
@@ -89,7 +89,7 @@ negative_ip_location
 
 # In[10]:
 
-
+# Combine title and desc into a text column
 df['text'] = df['title'] + ' ' + df['desc']
 df
 
@@ -118,18 +118,18 @@ df['text']= df['text'].apply(lambda x: remove_punctuations(x))
 import jieba
 from nltk.stem import SnowballStemmer
 
-# 创建 SnowballStemmer 对象
+# Create the SnowballStemmer object
 stemmer = SnowballStemmer('english')
 
-# 分词并进行词干提取的函数
+# Word segmentation and stem extraction
 def stemming_on_text(text):
-    # 分词
+    # Word segmentation
     seg_list = jieba.cut(text, cut_all=False)
-    # 词干提取
+    # Stem extracting
     stemmed_text = " ".join([stemmer.stem(word) for word in seg_list])
     return stemmed_text
 
-# 对 'text' 列中的每个句子应用分词和词干提取函数
+# Apply word segmentation and stem extraction functions to each sentence in the 'text' column
 df['text'] = df['text'].apply(stemming_on_text)
 
 
@@ -166,12 +166,12 @@ df['text'].head()
 import re
 
 def remove_words(text, words_to_remove):
-    # 使用正则表达式替换要去除的单词
+    # Use regular expressions to replace the words you want to remove
     for word in words_to_remove:
         text = re.sub(r'\b' + re.escape(word) + r'\b', '', text)
     return text
 
-# 要去除的单词列表
+# List of words to remove
 words_to_remove = ['的', '了','是','R','我','穿','优衣库','很','都','也','买','有','就','真','还',
                       '在','没','但','们','点','这个','这','去','和','不','一','款','哭','感觉','上',
                        '啊','一下','要','太','件','个','试','下','能','条','又','更','说','给','吧','大'
@@ -179,7 +179,7 @@ words_to_remove = ['的', '了','是','R','我','穿','优衣库','很','都','�
                 ,'⭐','🆘','❓','…','✅','‼','🤩','✨','🫡','❤️','🔎','如','图','题''哦','呀','吗'
                 ,'才','日','做','再']
 
-# 在 DataFrame 的 text 列上应用函数
+# Apply the function to the text column of the DataFrame
 df['text'] = df['text'].apply(lambda x: remove_words(x, words_to_remove))
 df['text'].head()
 
@@ -321,7 +321,7 @@ vis
 
 # In[37]:
 
-
+# Save the LDA data as a JSON format file
 pyLDAvis.save_json(vis, 'data.json')
 
 
@@ -337,7 +337,7 @@ import matplotlib.pyplot as plt
 # In[39]:
 
 
-# 假设pyLDAvis输出的data.json文件在当前目录
+# Read the data.json file
 with open('data.json', 'r') as f:
     data = json.load(f)
 
@@ -401,7 +401,7 @@ for text in desc_texts:
 # In[44]:
 
 
-# 应用预处理，并分词、词干提取
+# Applying preprocessing, word segmentation and stem extraction
 from nltk.stem import PorterStemmer
 nltk.download('punkt', quiet=True)
 ps = PorterStemmer()
@@ -409,20 +409,20 @@ ps = PorterStemmer()
 
 # In[45]:
 
-
+# Count the frequency of each word
 from collections import Counter
 
-# 创建一个空的计数器
+# Create an empty counter
 word_counts = Counter()
 
-# 处理每个处理后的分词结果
+# Process each processed participle
 for processed_text in desc_texts:
-    # 将每个处理后的分词结果拆分成单词列表
+    # Split each processed word segmentation result into word lists
     words = processed_text.split()
-    # 更新计数器
+    # Refresh counter
     word_counts.update(words)
 
-# 输出每个单词的出现频率
+# Output the frequency of each word
 for word, count in word_counts.items():
     print(f"'{word}' , {count}")
 
@@ -430,7 +430,7 @@ for word, count in word_counts.items():
 # In[46]:
 
 
-# 计算总词数
+# Count the total number of words
 total_word_count = sum(word_counts.values())
 print("Total word count:", total_word_count)
 
@@ -438,17 +438,17 @@ print("Total word count:", total_word_count)
 # In[47]:
 
 
-# 计算文档频率
+# Calculate document frequency
 document_frequency = Counter()
 
-# 处理每个处理后的分词结果
+# Process each processed participle
 for processed_text in desc_texts:
-    # 将每个处理后的分词结果转换为set，以去除重复词语
+    # Each processed word segmentation is converted to a set to remove duplicate words
     unique_words = set(processed_text.split())
-    # 更新文档频率计数器
+    # Update the document frequency counter
     document_frequency.update(unique_words)
 
-# 输出每个单词的文档频率
+# Output the document frequency for each word
 for word, freq in document_frequency.items():
     print(f"'{word}' , {freq}")
 
@@ -458,25 +458,25 @@ for word, freq in document_frequency.items():
 
 import math
 
-# 计算每个单词的TF-IDF值
+# Calculate the TF-IDF value for each word
 def calculate_tfidf(word_counts, total_word_count, document_frequency):
     tfidf_scores = {}
     num_documents = len(word_counts)
 
     for word, count in word_counts.items():
-        # 计算TF（词频）
+        # Calculate TF
         tf = count / total_word_count
 
-        # 计算IDF（逆文档频率）
+        # Calculate IDF
         idf = math.log(num_documents / document_frequency[word])
 
-        # 计算TF-IDF
+        # calculate TF-IDF
         tfidf_scores[word] = tf * idf
 
     return tfidf_scores
 
-# 假设document_frequency是一个字典，包含每个单词的文档频率
-# document_frequency[word]表示包含单词word的文档数
+
+# Output TF-IDF
 tfidf_scores = calculate_tfidf(word_counts, total_word_count, document_frequency)
 tfidf_scores
 
@@ -484,10 +484,10 @@ tfidf_scores
 # In[128]:
 
 
-# 获取最大的TF-IDF值
+# Gets the maximum TF-IDF value
 max_tfidf = max(tfidf_scores.values())
 
-# 归一化TF-IDF值
+# Normalized TF-IDF values
 normalized_tfidf_scores = {word: tfidf_score / max_tfidf for word, tfidf_score in tfidf_scores.items()}
 normalized_tfidf_scores
 
@@ -498,21 +498,21 @@ normalized_tfidf_scores
 import networkx as nx
 import matplotlib.pyplot as plt
 
-plt.rcParams['font.sans-serif'] = ['SimHei']  # 设置中文字体为黑体
-plt.rcParams['axes.unicode_minus'] = False  # 解决负号显示问题
+plt.rcParams['font.sans-serif'] = ['SimHei']  # Set the Chinese font to bold
+plt.rcParams['axes.unicode_minus'] = False  # Solve the negative sign display problem
 
-# 根据阈值构建语义网络化图,限制节点数量为100
+# The semantic network graph is constructed according to the threshold value, and the number of restricted nodes is 100
 def build_semantic_network(normalized_tfidf_scores, threshold=0.5, max_nodes=100):
     G = nx.Graph()
 
-    # 获取前100个单词及其TF-IDF得分
+    # Get the top 100 words and their TF-IDF scores
     top_words = sorted(normalized_tfidf_scores.items(), key=lambda x: x[1], reverse=True)[:max_nodes]
 
-    # 添加节点
+    # Add node
     for word, score in top_words:
         G.add_node(word)
         
-    # 添加边
+    # Add edge
     for i, (word1, score1) in enumerate(top_words):
         for j, (word2, score2) in enumerate(top_words):
             if i != j:
@@ -522,19 +522,18 @@ def build_semantic_network(normalized_tfidf_scores, threshold=0.5, max_nodes=100
 
     return G
 
-# 计算单词之间的相似度
+# Calculate the similarity between words
 def calculate_similarity(score1, score2):
-    # 假设相似度等于两个得分的差的绝对值
+    # Suppose the similarity is equal to the absolute value of the difference between the two scores
     similarity = abs(score1 - score2)
     return similarity
 
-# 使用 TF-IDF 得分构建语义网络化图，限制节点数量为100
+# The TF-IDF score was used to construct a semantic network graph with a limit of 100 nodes
 semantic_network = build_semantic_network(normalized_tfidf_scores, max_nodes=100)
 
-# 绘制网络图
-pos = nx.spring_layout(semantic_network, k=1)# k参数控制节点之间的弹簧力度，增加此值会增加节点之间的间距
+# Draw a network map
+pos = nx.spring_layout(semantic_network, k=1) # The k parameter controls the force of the spring between the nodes, increasing this value increases the spacing between the nodes
     
-# 绘制网络图
 plt.figure(figsize=(10, 8), facecolor='white')
 nx.draw(semantic_network, pos, node_color='skyblue', node_size=700, 
         edge_color='gray', with_labels=True)
@@ -549,22 +548,22 @@ plt.show()
 import networkx as nx
 import matplotlib.pyplot as plt
 
-# 假设您已经有了每个单词的出现频率，存储在字典 frequency_dict 中，其中键是单词，值是频率
-# 示例：
+# Store the frequency of each word in the dictionary frequency_dict
 frequency_dict = word_counts
 
-# 根据阈值构建语义网络化图，限制节点数量为100
+# The semantic network graph is constructed according to the threshold value, and the number of restricted nodes is 100
 def build_semantic_network(normalized_tfidf_scores, frequency_dict, threshold=0.5, max_nodes=100):
     G = nx.Graph()
 
-    # 获取前100个单词及其TF-IDF得分
+    # Get the top 100 words and their TF-IDF scores
     top_words = sorted(normalized_tfidf_scores.items(), key=lambda x: x[1], reverse=True)[:max_nodes]
 
-    # 添加节点，并为每个节点添加频率属性
+    # Add node
     for word, score in top_words:
-        G.add_node(word, frequency=frequency_dict.get(word, 0))  # 使用get方法获取频率，如果没有找到，默认为0
+        G.add_node(word, frequency=frequency_dict.get(word, 0))  # Use the get method to get the frequency, if not found, the default is 0
+
         
-    # 添加边
+    # Add edge
     for i, (word1, score1) in enumerate(top_words):
         for j, (word2, score2) in enumerate(top_words):
             if i != j:
@@ -574,22 +573,22 @@ def build_semantic_network(normalized_tfidf_scores, frequency_dict, threshold=0.
 
     return G
 
-# 计算单词之间的相似度
+# Calculate the similarity between words
 def calculate_similarity(score1, score2):
-    # 假设相似度等于两个得分的差的绝对值
+    # Suppose the similarity is equal to the absolute value of the difference between the two scores
     similarity = abs(score1 - score2)
     return similarity
 
-# 使用 TF-IDF 得分构建语义网络化图，限制节点数量为100
+# The TF-IDF score was used to construct a semantic network graph with a limit of 100 nodes
 semantic_network = build_semantic_network(normalized_tfidf_scores, frequency_dict, max_nodes=100)
 
-# 绘制网络图
+# Draw a network map
 pos = nx.spring_layout(semantic_network, k=1.2)
 
-# 获取节点的频率属性，作为节点大小的依据
+# Gets the frequency attribute of the node as a basis for the size of the node
 node_sizes = [data['frequency'] for node, data in semantic_network.nodes(data=True)]
 
-# 绘制网络图，设置节点大小为交互频率的大小
+# Draw a network map and set the node size to the interaction frequency
 plt.figure(figsize=(10, 8), facecolor='white')
 nx.draw(semantic_network, pos, node_color='skyblue', node_size=node_sizes, 
         edge_color='gray', with_labels=True)
